@@ -1,0 +1,344 @@
+import mysql.connector
+mydb=mysql.connector.connect(
+    user='root',
+    passwd='<your password>',
+    host='localhost',
+    database='bankdb',
+    auth_plugin='mysql_native_password')
+
+mycursor=mydb.cursor(buffered=True)
+
+#created database bankdb
+#mycursor.execute('create database bankdb')
+
+def Menu():
+    print("*"*140)
+    print("MAIN MENU".center(140))
+    print("1. Insert Record/Records".center(140))
+    print("2. Display Records".center(140))
+    print("   a. Sorted as per Account Number".center(140))
+    print("   b. Sorted as per Customer Name".center(140))
+    print("   c. Sorted as per Customer Balance".center(140))
+    print("3. Search Record Details as per the account number".center(140))
+    print("4. Update Record".center(140))
+    print("5. Delete Record".center(140))
+    print("6. Transactions from the account".center(140))
+    print("   a. Debit/Withdraw from the account". center(140))
+    print("   b. Credit/Deposit into the account".center(140))
+    print("7. Exit".center(140))
+    print("*"*140)
+
+def MenuSort():
+    print("   a. Sorted as per Account Number".center(140))
+    print("   b. Sorted as per Customer Name".center(140))
+    print("   c. Sorted as per Customer Balance".center(140))
+    print("   d. Back".center(140))
+
+def MenuTransaction():
+    print("   a. Debit/Withdraw from the account". center(140))
+    print("   b. Credit/Deposit into the account".center(140))
+    print("   c. Back".center(140))
+
+def Create():
+    try:
+        mycursor.execute("CREATE TABLE bank(accno VARCHAR(10), name VARCHAR(10), mobile VARCHAR(20), email VARCHAR(20), adderss VARCHAR(20), city VARCHAR(15), country VARCHAR(15), balance int)")
+        print("Table Created")
+        Insert()
+    except:
+        print("Table exist")
+        Insert()
+
+def Insert():
+    while True:
+        acc=input("Enter account no: ")
+        name=input("Enter Name: ")
+        mob=input("Enter Mobile Number: ")
+        email=input("Enter Email: ")
+        add=input("Enter Address: ")
+        city=input("Enter City: ")
+        country=input("Enter Country: ")
+        bal=int(input("Enter Balance: "))
+        rec=[acc, name.upper(), mob, email.upper(), add.upper(), city.upper(), country.upper(), bal]
+        cmd="INSERT INTO bank values(%s, %s, %s, %s, %s, %s, %s, %s)"
+        mycursor.execute(cmd, rec)
+        mydb.commit()
+
+        ch=input("Do you want to enter more records")
+        if ch=='N' or ch=='n':
+            break;
+
+def DispSortAcc():
+    try:
+        cmd="SELECT * FROM bank ORDER BY accno"
+        mycursor.execute(cmd)
+        F="%15s %15s %15s %15s %15s %15s %15s %15s"
+        print(F % ("ACCNO", "NAME", "MOBILE", "EMAIL", "ADDRESS", "CITY", "COUNTRY", "BALANCE"))
+        print("="*125)
+        for i in mycursor:
+            for j in i:
+                print("%14s" % j, end=' ')
+            print()
+        print("="*125)
+    except:
+        print("Table doesn't exist")
+
+def DispSortName():
+    try:
+        cmd="SELECT * FROM bank ORDER BY name"
+        mycursor.execute(cmd)
+        F="%15s %15s %15s %15s %15s %15s %15s %15s"
+        print(F % ("ACCNO", "NAME", "MOBILE", "EMAIL", "ADDRESS", "CITY", "COUNTRY", "BALANCE"))
+        print("="*125)
+        for i in mycursor:
+            for j in i:
+                print("%14s" % j, end=' ')
+            print()
+        print("="*125)
+    except:
+        print("Table doesn't exist")
+
+def DispSortBal():
+    try:
+        cmd="SELECT * FROM bank ORDER BY balance"
+        mycursor.execute(cmd)
+        F="%15s %15s %15s %15s %15s %15s %15s %15s"
+        print(F % ("ACCNO", "NAME", "MOBILE", "EMAIL", "ADDRESS", "CITY", "COUNTRY", "BALANCE"))
+        print("="*125)
+        for i in mycursor:
+            for j in i:
+                print("%14s" % j, end=' ')
+            print()
+        print("="*125)
+    except:
+        print("Table doesn't exist")
+
+def DispSearchAcc():
+    try:
+        cmd="SELECT * FROM bank"
+        mycursor.execute(cmd)
+        ch=input("Enter the accountno to be searched")
+        for i in mycursor:
+            if i[0]==ch:
+                print("="*125)
+                F="%15s %15s %15s %15s %15s %15s %15s %15s"
+                print(F % ("ACCNO", "NAME", "MOBILE", "EMAIL", "ADDRESS", "CITY", "COUNTRY", "BALANCE"))
+                print("="*125)
+                for j in i:
+                    print("%14s" % j, end=' ')
+                print()
+                break;
+            
+            else:
+                print("Record Not Found!!")
+                
+    except:
+        print("Table doesn't exist")
+
+
+def Update():
+    #try:
+        cmd="SELECT * FROM bank"
+        mycursor.execute(cmd)
+        A=input("Enter the account no. whose details need to be changed")
+        for i in mycursor:
+            i=list(i)
+            if i[0]==A:
+                ch=input("Change Name(Y/N)")
+                if ch=='Y' or ch=='y':
+                    i[1]=input("Enter Name")
+                    i[1]=i[1].upper()
+
+                ch=input("Change Mobile(Y/N)")
+                if ch=='Y' or ch=='y':
+                    i[2]=input("Enter Mobile No.")
+
+                ch=input("Change Email(Y/N)")
+                if ch=='Y' or ch=='y':
+                    i[3]=input("Enter Email")
+                    i[3]=i[3].upper()
+
+                ch=input("Change Address(Y/N)")
+                if ch=='Y' or ch=='y':
+                    i[4]=input("Enter Address")
+                    i[4]=i[4].upper()
+
+                ch=input("Change City(Y/N)")
+                if ch=='Y' or ch=='y':
+                    i[5]=input("Enter City")
+                    i[5]=i[5].upper()
+
+                ch=input("Change Country(Y/N)")
+                if ch=='Y' or ch=='y':
+                    i[6]=input("Enter Country")
+                    i[6]=i[6].upper()
+
+                ch=input("Change Balance(Y/N)")
+                if ch=='Y' or ch=='y':
+                    i[7]=int(input("Enter Balance"))
+
+                cmd="UPDATE bank SET name=%s, mobile=%s, email=%s, adderss=%s, city=%s, country=%s, balance=%s WHERE accno=%s"
+                val=(i[1], i[2], i[3], i[4], i[5], i[6], i[7], i[0])
+                mycursor.execute(cmd, val)
+                mydb.commit()
+                print("Account Updated!!")
+                break
+        else:
+            print("Record Not Found!!")
+
+    #except:
+     #   print("No such Table")
+
+
+def Delete():
+    try:
+        cmd="SELECT * FROM bank"
+        mycursor.execute(cmd)
+        A=input("Enter the Account No. which needs to be deleted")
+        for i in mycursor:
+            i=list(i)
+            if i[0]==A:
+                cmd="DELETE FROM bank WHERE accno=%s"
+                val=(i[0],)
+                mycursor.execute(cmd, val)
+                mydb.commit()
+                print("Account Deleted")
+                break;
+            else:
+                print("Record Not Found")
+
+    except:
+        print("No such Table")
+
+
+def Debit():
+    try:
+        cmd="SELECT * FROM bank"
+        mycursor.execute(cmd)
+        print("Please note that a minimum balance of Rs.5000 needs to be maintained")
+        acc=input("Enter the account no. from which the money is to be debited")
+        for i in mycursor:
+            i=list(i)
+            if i[0]==acc:
+                Amt=int(input("Enter the Amount to be Debited/Withdrawn"))
+                if i[7]-Amt>=5000:
+                    i[7]-=Amt
+                    cmd="UPDATE bank SET BALANCE=%s WHERE accno=%s"
+                    val=(i[7], i[0])
+                    mycursor.execute(cmd, val)
+                    mydb.commit()
+                    print("Amount Debited/Withdrawn")
+                    break
+                else:
+                    print("Minimum Balance of Rs.5000 needs to be maintained!!")
+                    break
+
+            else:
+                print("Record Not Found!!")
+
+
+    except:
+        print("No such Table")
+
+
+def Credit():
+    try:
+        cmd="SELECT * FROM bank"
+        mycursor.execute(cmd)
+        
+        acc=input("Enter the account no. from which the money is to be Credited")
+        for i in mycursor:
+            i=list(i)
+            if i[0]==acc:
+                Amt=int(input("Enter the Amount to be Credited/Deposited"))
+            
+                i[7]+=Amt
+                cmd="UPDATE bank SET BALANCE=%s WHERE accno=%s"
+                val=(i[7], i[0])
+                mycursor.execute(cmd, val)
+                mydb.commit()
+                print("Amount Credited/Deposited")
+                break
+                
+
+            else:
+                print("Record Not Found!!")
+
+
+    except:
+        print("No such Table")
+
+
+
+'''
+main() function of project from where all the functions are called
+'''
+
+while True:
+    Menu()
+    ch=input("Enter your Choice")
+
+    if ch=="1":
+        Create()
+
+    elif ch=="2":
+        while True:
+            MenuSort()
+            ch1=input("Enter Choice a/b/c/d")
+            if ch1 in ['a', 'A']:
+                DispSortAcc()
+
+            elif ch1 in ['b', 'B']:
+                DispSortName()
+
+            elif ch1 in ['c', 'C']:
+                DispSortBal()
+
+            elif ch1 in ['d', 'D']:
+                print("Back to the main menu")
+                break
+
+            else:
+                print("Invalid Choice!!")
+
+    elif ch=="3":
+        DispSearchAcc()
+
+    elif ch=="4":
+        Update()
+
+    elif ch=="5":
+        Delete()
+
+    elif ch=="6":
+        while True:
+            MenuTransaction()
+            ch1=input("Enter choice a/b/c")
+            if ch1 in ['a', 'A']:
+                Debit()
+
+            elif ch1 in ['b', 'B']:
+                Credit()
+
+            elif ch1 in ['c', 'C']:
+                print("Back to the main menu")
+                break
+
+            else:
+                print("Invalid Choice!!")
+
+    elif ch=="7":
+        print("Exiting...")
+        break
+
+    else:
+        print("Wrong Choice Made!!")
+    
+            
+                
+    
+            
+
+        
+    
+    
+    

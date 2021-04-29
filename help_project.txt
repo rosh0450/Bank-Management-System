@@ -1,0 +1,243 @@
+delimiter //
+create trigger after_update_amt
+after update on bank for each row
+begin
+if (new.balance <=> old.balance) then
+insert into transac values(user(), old.accno, old.balance, new.balance, current_timestamp());
+end if;
+end //
+
+**************************************************************************************************
+delimiter //
+create trigger after_update_name
+after update on bank for each row
+begin
+if (new.name <> old.name) then
+insert into updates values(user(), old.accno, concat("Name Updated... Old Name: ", old.name, " New Name: ", new.name), current_timestamp());
+end if;
+end //
+
+
+**************************************************************************************************
+delimiter //
+create trigger after_update_mobile
+after update on bank for each row
+begin
+if (new.mobile <> old.mobile) then
+insert into updates values(user(), old.accno, concat("Mobile Number Updated... Old Mob.No.: ", old.mobile, " New Mob.No.: ", new.mobile), current_timestamp());
+end if;
+end //
+
+
+**************************************************************************************************
+
+delimiter //
+create trigger after_update_email
+after update on bank for each row
+begin
+if (new.email <> old.email) then
+insert into updates values(user(), old.accno, concat("Email Updated... Old Email: ", old.email, " New Email: ", new.email), current_timestamp());
+end if;
+end //
+
+
+**************************************************************************************************
+
+delimiter //
+create trigger after_update_adderss
+after update on bank for each row
+begin
+if (new.adderss <> old.adderss) then
+insert into updates values(user(), old.accno, concat("Address Updated... Old Address: ", old.adderss, " New Address: ", new.adderss), current_timestamp());
+end if;
+end //
+
+
+**************************************************************************************************
+
+delimiter //
+create trigger after_update_city
+after update on bank for each row
+begin
+if (new.city <> old.city) then
+insert into updates values(user(), old.accno, concat("City Updated... Old City: ", old.city, " New City: ", new.city), current_timestamp());
+end if;
+end //
+
+
+**************************************************************************************************
+
+delimiter //
+create trigger after_update_country
+after update on bank for each row
+begin
+if (new.country <> old.country) then
+insert into updates values(user(), old.accno, concat("Country Updated... Old Country: ", old.country, " New Country: ", new.country), current_timestamp());
+end if;
+end //
+
+
+**************************************************************************************************
+
+delimiter //
+create trigger after_update_amt
+after update on bank for each row
+begin
+insert into transac values(user(), old.accno, old.balance, new.balance, current_timestamp());
+end //
+
+
+**************************************************************************************************
+
+delimiter //
+create trigger after_update_amt
+after update on bank for each row
+if (update(balance))
+begin
+insert into transac values(user(), old.accno, old.balance, new.balance, current_timestamp());
+end //
+
+
+**************************************************************************************************
+
+drop trigger after_update_amt;
+drop trigger after_update_name;
+drop trigger after_update_email;
+drop trigger after_update_address;
+drop trigger after_update_city;
+drop trigger after_update_country;
+drop trigger after_update_mobile;
+
+
+**************************************************************************************************
+
+**************************************************************************************************
+
+def DispUpdates():
+    try:
+        acc=input("Enter the account no. to review the Updates")
+        cmd="SELECT * from updates where ano=%s order by uptime desc"
+        val=(acc,)
+        mycursor.execute(cmd,val)
+        
+        F="%30s %20s %100s %30s"
+        print(tabulate(mycursor, headers=["USER", "ACCNO", "STATUS", "TIMESTAMP"]))
+    
+    except:
+        print("Table doesn't exist")
+
+
+
+def DispUpdates():
+    try:
+        acc=input("Enter the account no. to review the Updates")
+        cmd="SELECT * from updates where ano=%s order by uptime desc"
+        val=(acc,)
+        mycursor.execute(cmd,val)
+        
+        F="%50s %50s %50s %50s"
+        print(F % ("USER", "ACCNO", "STATUS", "TIMESTAMP"))
+        print("="*188)
+        #if i[1]!=i[2]:
+        for i in mycursor:
+            for j in i:
+                print("%50s" % j, end=' ')
+            print()
+        print("="*188)
+                    
+    
+    except:
+        print("Table doesn't exist")
+
+
+
+
+
+print(F % ("USER", "ACCNO", "STATUS", "TIMESTAMP"))
+
+
+
+
+
+
+********************************************************************************************************************************************************************************************
+
+
+
+
+def DispTransac():
+    try:
+        acc=input("Enter the account no. to review the transactions")
+        cmd="SELECT * from transac where ano=%s and ibal<>fbal order by uptime desc"
+        val=(acc,)
+        mycursor.execute(cmd,val)
+        
+        F="%15s %15s %15s %15s"
+        print(F % ("ACCNO", "INITIAL BALANCE", "FINAL BALANCE", "TIMESTAMP"))
+        print("="*188)
+        
+        for i in mycursor:
+            for j in i:
+                print("%19s" % j, end=' ')
+            print()
+        print("="*188)
+    
+    except:
+        print("Table doesn't exist")
+
+
+********************************************************************************************************************************************************************************************
+
+
+def Delete():
+    try:
+        cmd="SELECT * FROM bank"
+        mycursor.execute(cmd)
+        A=input("Enter the Account No. which needs to be deleted ")
+        print()
+        p=0
+        for i in mycursor:
+            i=list(i)
+            if i[0]==A:
+                cmd="DELETE FROM bank WHERE accno=%s"
+                val=(i[0],)
+                mycursor.execute(cmd, val)
+                mydb.commit()
+                print("Account Deleted")
+                print()
+                p+=1
+                break;
+        if p==0:
+            print("Record Not Found")
+            print()
+
+    except:
+        print("No such Table")
+
+
+********************************************************************************************************************************************************************************************
+
+def DispSearchAcc():
+    try:
+        cmd="SELECT * FROM bank"
+        mycursor.execute(cmd)
+        ch=input("Enter the account no. to be searched ")
+        print()
+        p=0
+        for i in mycursor:
+            if i[0]==ch:
+                F="%15s %15s %15s %15s %15s %15s %15s %15s"
+                print(tabulate(mycursor, headers=["ACCNO", "NAME", "MOBILE", "EMAIL", "ADDRESS", "CITY", "COUNTRY", "BALANCE"], tablefmt="fancy_grid"))
+                print()
+                p+=1
+                break;
+            
+        if p==0:
+            print("Record Not Found!!\n")
+                
+    except:
+        print("Table doesn't exist")
+
+
+                    
+ 
